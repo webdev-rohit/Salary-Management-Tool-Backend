@@ -1,0 +1,10 @@
+[project]
+name = "Salary-Management-Tool-Backend"
+version = "0.1.0"
+description = "This is a backend application for managing employee salaries, including features for calculating and tracking salary payments and handling employee information."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.136.1",
+    "uvicorn>=0.47.0",
+]
