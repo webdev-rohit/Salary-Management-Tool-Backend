@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -8,6 +9,7 @@ from app.database.connection import get_db
 from app.models.base import Base
 from app.models.organisations import Organisation
 from app.models.employees import Employee
+from app.models.users import User  # noqa: F401 — ensures User mapper is registered before create_all
 
 
 @pytest.fixture
@@ -15,6 +17,7 @@ def test_engine():
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
     Base.metadata.create_all(bind=engine)
     yield engine
