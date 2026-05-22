@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 import uvicorn
 
+from app.api.employee_routes import router as employee_router
+
 app = FastAPI()
+
+app.include_router(employee_router)
 
 @app.get("/")
 def health_check():
