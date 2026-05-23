@@ -18,4 +18,8 @@ class Settings(BaseSettings):
     database_url: str = Field(...)
     page_size_max: int = Field(default=100)
 
+    secret_key: str = Field(...)
+    algorithm: str = Field(default="HS256")
+    access_token_valid_time: int = Field(default=60)
+
 settings = Settings()
