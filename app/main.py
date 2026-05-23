@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import uvicorn
 
 from app.api.employee_routes import router as employee_router
+from app.api.insight_routes import router as insight_router
 from app.database.init_db import init_db
 
 app = FastAPI()
@@ -9,6 +10,7 @@ app = FastAPI()
 init_db()
 
 app.include_router(employee_router)
+app.include_router(insight_router)
 
 @app.get("/")
 def health_check():
