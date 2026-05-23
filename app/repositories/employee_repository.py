@@ -18,14 +18,18 @@ def get_employee_by_id(db: Session, employee_id: int) -> Optional[Employee]:
     return db.get(Employee, employee_id)
 
 
-def get_all_employees(db: Session, org_id: int, skip: int, limit: int) -> list[Employee]:
+def get_employees_page(db: Session, org_id: int, offset: int, page_size: int) -> list[Employee]:
     return (
         db.query(Employee)
         .filter(Employee.org_id == org_id)
-        .offset(skip)
-        .limit(limit)
+        .offset(offset)
+        .limit(page_size)
         .all()
     )
+
+
+def count_employees(db: Session, org_id: int) -> int:
+    return db.query(Employee).filter(Employee.org_id == org_id).count()
 
 
 def update_employee(db: Session, employee: Employee, data: EmployeeUpdate) -> Employee:

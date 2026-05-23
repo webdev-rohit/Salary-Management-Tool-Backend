@@ -16,5 +16,6 @@ class Settings(BaseSettings):
     app_name: str = "Salary-Management-Tool-Backend"
 
     database_url: str = Field(...)
+    page_size_max: int = Field(default=100)
 
 settings = Settings()

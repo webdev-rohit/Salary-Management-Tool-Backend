@@ -56,3 +56,11 @@ class EmployeeResponse(BaseModel):
     salary: float
     created_at: datetime
     updated_at: datetime
+
+
+class PaginatedEmployeeResponse(BaseModel):
+    data: list[EmployeeResponse]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int

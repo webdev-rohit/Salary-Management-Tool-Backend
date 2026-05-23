@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
-from app.schemas.employee_schema import EmployeeCreate, EmployeeResponse, EmployeeUpdate
+from app.schemas.employee_schema import EmployeeCreate, EmployeeResponse, EmployeeUpdate, PaginatedEmployeeResponse
 from app.services import employee_service
 
 router = APIRouter(prefix="/orgs/{org_id}/employees", tags=["employees"])
@@ -13,9 +13,9 @@ def create_employee(org_id: int, data: EmployeeCreate, db: Session = Depends(get
     return employee_service.create_employee(db, org_id, data)
 
 
-@router.get("", response_model=list[EmployeeResponse])
-def list_employees(org_id: int, skip: int = 0, limit: int = 50, db: Session = Depends(get_db)):
-    return employee_service.list_employees(db, org_id, skip=skip, limit=limit)
+@router.get("", response_model=PaginatedEmployeeResponse)
+def list_employees(org_id: int, page: int = 1, page_size: int = 50, db: Session = Depends(get_db)):
+    return employee_service.list_employees(db, org_id, page=page, page_size=page_size)
 
 
 @router.get("/{employee_id}", response_model=EmployeeResponse)
