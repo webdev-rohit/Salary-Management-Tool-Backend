@@ -123,6 +123,8 @@ def main() -> None:
         print(f"  No folder found at scripts/{org_name}/. Please enter a valid organisation name.")
 
     currency = input("Enter currency: ").strip()
+    org_address = input("Enter organisation address: ").strip()
+    domain = input("Enter organisation domain: ").strip()
 
     # 2. Load data files
     first_names = _read_lines(org_dir / "first_names.txt")
@@ -133,7 +135,7 @@ def main() -> None:
         # 3. Get or create organisation
         org = session.query(Organisation).filter_by(org_name=org_name).first()
         if org is None:
-            org = Organisation(org_name=org_name, org_address="N/A", currency=currency)
+            org = Organisation(org_name=org_name, org_address=org_address, currency=currency, domain=domain)
             session.add(org)
             session.flush()
             print(f"Created organisation '{org_name}' (id={org.id}).")
