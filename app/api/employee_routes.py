@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
@@ -28,7 +28,7 @@ def update_employee(org_id: int, employee_id: int, data: EmployeeUpdate, db: Ses
     return employee_service.update_employee(db, org_id, employee_id, data)
 
 
-@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{employee_id}", status_code=status.HTTP_200_OK)
 def delete_employee(org_id: int, employee_id: int, db: Session = Depends(get_db)):
     employee_service.delete_employee(db, org_id, employee_id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return {"message": "This employee has been removed from the Employee Database"}

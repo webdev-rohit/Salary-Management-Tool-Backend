@@ -14,6 +14,10 @@ def create_employee(db: Session, org_id: int, data: EmployeeCreate) -> Employee:
     return emp
 
 
+def get_employee_by_email(db: Session, org_id: int, email: str) -> Optional[Employee]:
+    return db.query(Employee).filter(Employee.org_id == org_id, Employee.email == email).first()
+
+
 def get_employee_by_id(db: Session, employee_id: int) -> Optional[Employee]:
     return db.get(Employee, employee_id)
 

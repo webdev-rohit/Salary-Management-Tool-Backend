@@ -15,6 +15,7 @@ class Organisation(Base):
     org_name = Column(String(255), nullable=False)
     org_address = Column(Text, nullable=False)
     currency = Column(String(10), nullable=False)
+    domain = Column(String(100), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
 

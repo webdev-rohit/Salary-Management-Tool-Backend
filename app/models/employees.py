@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -10,6 +10,7 @@ def _now():
 
 class Employee(Base):
     __tablename__ = "employees"
+    __table_args__ = (UniqueConstraint("org_id", "email", name="uq_employee_org_email"),)
 
     id = Column(Integer, primary_key=True)
     org_id = Column(Integer, ForeignKey("organisations.id"), nullable=False)
