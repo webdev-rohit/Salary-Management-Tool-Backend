@@ -32,30 +32,47 @@ def _check_duplicate_email(db: Session, org_id: int, email: str, exclude_employe
         raise HTTPException(status_code=409, detail=f"An employee with email '{email}' already exists in this organisation")
 
 
-def create_employee(db: Session, org_id: int, data: EmployeeCreate) -> Employee:
+def _to_response(emp: Employee, currency: str) -> dict:
+    return {
+        "id": emp.id,
+        "org_id": emp.org_id,
+        "full_name": emp.full_name,
+        "email": emp.email,
+        "job_title": emp.job_title,
+        "department": emp.department,
+        "country": emp.country,
+        "salary": f"{float(emp.salary):.2f} {currency}",
+        "created_at": emp.created_at,
+        "updated_at": emp.updated_at,
+    }
+
+
+def create_employee(db: Session, org_id: int, data: EmployeeCreate) -> dict:
     org = _get_org_or_404(db, org_id)
     _validate_email_domain(data.email, org)
     _check_duplicate_email(db, org_id, data.email)
-    return repo.create_employee(db, org_id, data)
+    emp = repo.create_employee(db, org_id, data)
+    return _to_response(emp, org.currency)
 
 
-def get_employee(db: Session, org_id: int, employee_id: int) -> Employee:
+def get_employee(db: Session, org_id: int, employee_id: int) -> dict:
     emp = repo.get_employee_by_id(db, employee_id)
     if emp is None or emp.org_id != org_id:
         raise HTTPException(status_code=404, detail="Employee not found")
-    return emp
+    return _to_response(emp, emp.organisation.currency)
 
 
 def list_employees(db: Session, org_id: int, page: int, page_size: int) -> PaginatedEmployeeResponse:
     if page_size > settings.page_size_max:
         raise HTTPException(status_code=400, detail=f"page_size cannot exceed {settings.page_size_max} per page")
 
+    org = _get_org_or_404(db, org_id)
     total = repo.count_employees(db, org_id)
     total_pages = math.ceil(total / page_size) if total > 0 else 1
     offset = (page - 1) * page_size
     employees = repo.get_employees_page(db, org_id, offset=offset, page_size=page_size)
     return PaginatedEmployeeResponse(
-        data=employees,
+        data=[_to_response(e, org.currency) for e in employees],
         page=page,
         page_size=page_size,
         total=total,
@@ -63,15 +80,20 @@ def list_employees(db: Session, org_id: int, page: int, page_size: int) -> Pagin
     )
 
 
-def update_employee(db: Session, org_id: int, employee_id: int, data: EmployeeUpdate) -> Employee:
-    emp = get_employee(db, org_id, employee_id)
+def update_employee(db: Session, org_id: int, employee_id: int, data: EmployeeUpdate) -> dict:
+    emp = repo.get_employee_by_id(db, employee_id)
+    if emp is None or emp.org_id != org_id:
+        raise HTTPException(status_code=404, detail="Employee not found")
     if data.email is not None:
         org = _get_org_or_404(db, org_id)
         _validate_email_domain(data.email, org)
         _check_duplicate_email(db, org_id, data.email, exclude_employee_id=emp.id)
-    return repo.update_employee(db, emp, data)
+    emp = repo.update_employee(db, emp, data)
+    return _to_response(emp, emp.organisation.currency)
 
 
 def delete_employee(db: Session, org_id: int, employee_id: int) -> None:
-    emp = get_employee(db, org_id, employee_id)
+    emp = repo.get_employee_by_id(db, employee_id)
+    if emp is None or emp.org_id != org_id:
+        raise HTTPException(status_code=404, detail="Employee not found")
     repo.delete_employee(db, emp)

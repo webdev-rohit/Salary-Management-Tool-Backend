@@ -53,7 +53,7 @@ class EmployeeResponse(BaseModel):
     job_title: str
     department: str
     country: str
-    salary: float
+    salary: str
     created_at: datetime
     updated_at: datetime
 
