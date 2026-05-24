@@ -173,6 +173,8 @@ Authorization: Bearer <access_token>
 
 **Employee fields:** `full_name`, `email`, `job_title`, `department`, `country`, `salary`
 
+`salary` is accepted as a number on create/update and returned as `"{amount} {currency}"` (e.g. `"75000.00 USD"`) in all responses.
+
 Employees are scoped to the authenticated user's organisation — cross-org access is not possible.
 
 ---
@@ -181,11 +183,14 @@ Employees are scoped to the authenticated user's organisation — cross-org acce
 
 | Method | Endpoint | Query Params | Description |
 |--------|----------|--------------|-------------|
+| GET | `/insights/salary-range` | — | Org-wide min/max salary and currency |
 | GET | `/insights/country/{country}` | — | Min/max/avg salary + headcount for a country |
-| GET | `/insights/job-title` | `title`, `country` | Average salary for a job title, optionally filtered by country |
+| GET | `/insights/job-title` | `title`, `country` | Average salary for a job title in a given country |
 | GET | `/insights/departments` | — | Salary stats grouped by department |
 | GET | `/insights/headcount` | — | Employee count broken down by country |
-| GET | `/insights/top-earners` | `n` (max 100) | Top N highest-paid employees |
+| GET | `/insights/top-earners` | `n` (default 10, max 100) | Top N highest-paid employees |
+
+All salary values in insights responses are formatted as `"{amount} {currency}"` (e.g. `"1954353.72 INR"`), rounded to 2 decimal places.
 
 ---
 
