@@ -60,6 +60,17 @@ def get_headcount_by_country(db: Session, org_id: int):
     )
 
 
+def get_org_salary_range(db: Session, org_id: int):
+    return (
+        db.query(
+            func.min(Employee.salary).label("min_salary"),
+            func.max(Employee.salary).label("max_salary"),
+        )
+        .filter(Employee.org_id == org_id)
+        .one()
+    )
+
+
 def get_top_earners(db: Session, org_id: int, n: int) -> list[Employee]:
     return (
         db.query(Employee)
