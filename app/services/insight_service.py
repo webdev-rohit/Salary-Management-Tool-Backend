@@ -55,6 +55,18 @@ def get_dept_stats(db: Session, org_id: int) -> list[dict]:
     ]
 
 
+def get_org_salary_range(db: Session, org_id: int) -> dict:
+    currency = _get_currency(db, org_id)
+    row = repo.get_org_salary_range(db, org_id)
+    if row.min_salary is None:
+        raise HTTPException(status_code=404, detail="No employees found in this organisation")
+    return {
+        "min_salary": _fmt(row.min_salary, currency),
+        "max_salary": _fmt(row.max_salary, currency),
+        "currency": currency,
+    }
+
+
 def get_headcount_by_country(db: Session, org_id: int) -> list[dict]:
     rows = repo.get_headcount_by_country(db, org_id)
     return [{"country": r.country, "count": r.count} for r in rows]
