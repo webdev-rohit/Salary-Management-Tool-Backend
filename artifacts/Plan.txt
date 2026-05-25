@@ -1,0 +1,207 @@
+Steps for backend development and tesing of the project:
+
+1. Backend folder created. In the folder -
+   Set up uv by running commands: 
+	uv init
+	uv venv
+
+2. Set up the initial fastapi-based project structure.
+
+3. Create a new public repository for the backend project in GitHub and push the first commit created.
+
+4. Got first_names.txt, last_names.txt and Dept_Job_Salary_mapping.xlsx created using Gemini
+
+Prompts used:
+
+A) For first and last names -
+I need you to create 2 files called first_names.txt and last_names.txt each containing 10,000 entries. Make sure that the names contain only names and NOT something like David123 or Doe99
+
+B) For Dept, Job title and salary -
+I want 3 columns in an excel: department, job_title and salary_range. The department and job titles will be only for these -
+
+a) Engineering: Software Engineer, Data Scientist, DevOps Engineer, IT Support Specialist, Systems Administrator, QA Analyst
+
+b) Human Resources: HR Manager, Talent Acquisition Specialist, Compensation & Benefits Analyst
+
+c) Sales: Sales Director, Customer Success Manager, Regional Sales Manager
+
+d) Marketing and Creative: Marketing Manager, SEO Specialist, Content Writer, Graphic Designer, Social Media Coordinator
+
+e) Finance and Accounting: Financial Analyst, Accountant, Billing Coordinator, Tax Specialist
+
+f) Leadership: Chief Executive Officer (CEO), Chief Technology Officer (CTO), Chief Financial Officer (CFO), Vice President of Operations
+
+Then as per your understanding assign a salary range in INR for each of these job titles.
+
+Give me the final excel STRICTLY containing these 3 columns only.
+
+5. Set up an initial neonDB postgres DB URL.
+
+6. Decide the following schema and asked ChatGPT to add Data Type and Constraints accordingly.
+schema: 
+employees table -
+id
+org_id
+full_name
+email
+job_title
+department
+country
+salary
+created_at
+updated_at
+
+organisations table -
+id
+org_name
+org_address
+currency
+created_at
+updated_at
+
+users table -
+id
+org_id
+user_email
+hashed_password
+created_at
+updated_at
+
+7. Set up model files and then Set up app/core/config.py file so that it picks up env data from .env
+
+8. Set up alembic configuration to set up the schema in the connected DB.
+Prompt for claude code:
+now I need alembic to be configured in the system to set up the schema in DB by connecting via database_url defined in @app/core/config.py file. Make sure that alembic revision ... command is run by evaluating the models in @app/models\ directory accordingly followed by alembic upgrade head.
+
+9. Create the seed_employees.py script code.
+Prompt:
+Write the @scripts/seed_employees.py script.
+The script should use SQLAlchemy ORM syntax only (no raw SQL queries).
+
+Requirements for the script:
+
+1. The script should accept 2 terminal inputs:
+
+   * organisation name
+   * currency
+
+Example:
+
+```bash
+python scripts/seed_employees.py
+
+Enter organisation name: incubyte
+Enter currency: INR
+```
+
+2. Validation of organisation folder:
+
+   * Inside `scripts/`, there are organisation-specific folders.
+   * Example:
+
+     ```text
+     scripts/
+       ├── incubyte/
+       │     ├── first_names.txt
+       │     ├── last_names.txt
+       │     └── Dept_Job_Salary_mapping.xlsx
+     ```
+   * If the entered organisation folder does not exist, keep asking the user to enter a valid organisation name.
+   * Only proceed once a valid folder exists.
+
+3. Organisation handling:
+
+   * Check whether the organisation already exists in DB.
+   * If not:
+     * create a new Organisation row
+     * save the provided org_name and currency
+   * If it already exists:
+     * reuse the existing organisation row
+
+4. Employee count:
+   * Seed exactly 10,000 employees only.
+
+5. Name generation:
+   * Read first names from `first_names.txt` present in the corresponding organisation folder.
+   * Likewise, read last names from `last_names.txt`
+   * Generate:
+
+     ```text
+     full_name = "<first_name> <last_name>"
+     ```
+
+6. Email generation:
+
+   * Format:
+
+     ```text
+     <first_name><last_name><random-2-digits>@<org_name>.com
+     ```
+   * Example:
+
+     ```text
+     rohitsharma42@incubyte.com
+     ```
+   * Email should be lowercase.
+   * Ensure email uniqueness.
+
+7. Department / Job Title / Salary logic:
+
+   * Read the Excel file:
+
+     ```text
+     Dept_Job_Salary_mapping.xlsx
+     ```
+   * The Excel contains:
+
+     * department
+     * job_title
+     * salary_range
+
+   Example:
+
+   ```text
+   Department: Engineering
+   Job Title: Software Engineer
+   Salary Range: 500000 - 1500000
+   ```
+
+   Logic:
+
+   * Randomly assign a department row from the Excel.
+   * Use the corresponding job title from that same row.
+   * Parse the salary range.
+   * Generate a random salary value within that range only.
+
+8. Country assignment:
+
+   * Randomly assign ONLY from:
+
+     * India
+     * USA
+     * Great Britain
+     * Brazil
+     * Japan
+
+9. Performance Requirements:
+
+   * Use SQLAlchemy bulk insert operations.
+   * Do NOT insert one row at a time.
+   * The script should be optimized for inserting 10,000 employees efficiently.
+
+10. ORM Requirements:
+
+* Use SQLAlchemy ORM models and sessions only.
+* Do NOT use raw SQL queries.
+
+
+10. Set up the database/connection and database/init file and accordingly modify seed_employees.py file.
+11. Run the seed_employees.py file finally and get the DB filled with 10k employees info.
+12. git checkout -b test/write-TDD-tests -> Write only the test files in tests folder, they will fail on running but that's the point of Red in Red-Green-Refactor
+13. After testing this branch's code, commit these changes in tests folder and then raise PR to main. Merge the PR to main and take main's pull.
+14. Similarly make changes for employee CRUD routes and insights routes in their different respective branches, raise the PR after testing them and merge with main.
+15. Checkout to a new auth branch where user auth will be enabled and firstly, run seed_employees.py script to feed data for another org in the DB with 10000 employees.
+16. Add seed_user.py script to create users for logging in the respective organisations for auth.
+17. Add auth routes and JWT auth logic so that every route has auth enabled as per the user logged in.
+18. design mockups in html using claude for frontend code to refer
+19. Add readme in backend code repo
