@@ -22,4 +22,6 @@ class Settings(BaseSettings):
     algorithm: str = Field(default="HS256")
     access_token_valid_time: int = Field(default=60)
 
+    cors_origins: list[str] = Field(default=["http://localhost:5173"])
+
 settings = Settings()
